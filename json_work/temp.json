@@ -1,0 +1,10 @@
+{
+  "first": 1,
+  "second": "a",
+  "third": "abc",
+  "depth1": {
+    "depth2-1": "0x1111",
+    "depth2-2": "0x2222",
+    "depth2-3": "0x33333333"
+  }
+}
