@@ -49,13 +49,37 @@ void handle_client(int client_socket, MessageQueue& mq) {
 
 int main() {
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket < 0) {
+      std::cerr << "Socket Create Fail\n";
+    }
+
+    // 이전에 서버 실행할 때 소켓 정상 종료되지 않은 경우 재사용하는 옵션
+    int opt = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+      std::cerr << "Set Sock Opt Error\n";
+      return 1;
+    }
+
+
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(8080);
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
-    bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    listen(server_socket, 5);   // 동시에 최대 연결 가능 Client
+    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+      std::cerr << "Bind Error";
+    } else {
+      std::cout << "Success Bind";
+    }
+    /*
+    수신할 수 있는 대기 중인 연결 요청의 최대 수 
+      소켓의 대기열에 쌓일 수 있는 최대 연결 요청의 수라 생각하면 된다  
+    실제 소켓과 연결 가능한 갯수와는 상관 X
+
+    서버 입장에서 여러 연결 요청을 수신할 수 있도록 하며 대기열의 크기를 핸들링 할 수 있는 것
+      해당 대기열이 다 차 있는 경우 요청이 거부되거나 무시된다
+    */
+    listen(server_socket, 5);  
 
     MessageQueue mq;
     std::thread processor(process_messages, std::ref(mq));  // 객체 복사본이 아닌 참조 형태로 제공
