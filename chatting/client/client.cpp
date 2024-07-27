@@ -34,12 +34,25 @@ int main()
 
   // 서버로 데이터 전송
   const char *message = "Hello, server!";
-  
-  if (send(client_socket, message, std::strlen(message), 0) < 0)
-  {
-    std::cerr << "Send failed\n";
-    close(client_socket);
-    return 1;
+  for(int i = 0; i < 5; i++) {
+    if (send(client_socket, message, std::strlen(message), 0) < 0)
+    {
+      std::cerr << "Send failed\n";
+      close(client_socket);
+      return 1;
+    }
+  }
+  sleep(10);
+
+  message = "start multicast";
+
+  for(int i = 0; i < 5; i++) {
+    if (send(client_socket, message, std::strlen(message), 0) < 0)
+    {
+      std::cerr << "Send failed\n";
+      close(client_socket);
+      return 1;
+    }
   }
 
   while (true)

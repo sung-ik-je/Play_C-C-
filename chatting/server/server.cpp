@@ -3,9 +3,10 @@
 #include <queue>
 #include <iostream>
 #include <unistd.h>
+#include <chrono>
 
-
-std::vector<int> clients; // 근데 client 끊겨도 보내지 않나? 추적 못하면?
+std::vector<int> clients; 
+std::atomic<bool> multiciast_flag(true);
 
 class MessageQueue
 {
@@ -33,12 +34,34 @@ private:
   std::condition_variable cv;
 };
 
+void run_multicast() {
+  const char* message = "TCP Multicast";
+  int cnt = 0;
+  while(multiciast_flag) {
+    for(int client : clients) {
+      if (send(client, message, strlen(message), 0) < 0) {
+        std::cerr << "Send Message Fail, Socket : " << client << std::endl;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    cnt++;
+    if (cnt > 3) multiciast_flag = false;
+  }
+}
+
 void process_messages(MessageQueue &mq)
 {
+  std::string flag = "start multicast";
   while (true)
   {
     std::string message = mq.pop(); // 비어 있는 경우 빈 메시지 반환
     std::cout << "Processed message: " << message << std::endl;
+    if (message.compare(flag) == 0) {
+      multiciast_flag = true;
+      std::thread t(run_multicast);
+      sleep(5);
+      t.join();
+    }
   }
 }
 
@@ -56,17 +79,6 @@ void handle_client(int client_socket, MessageQueue &mq)
     }
     std::string message(buffer);
     mq.push(message);
-  }
-}
-
-void run_multicast() {
-  const char* message = "TCP Multicast";
-  while(true) {
-    for(int client : clients) {
-      if (send(client, message, strlen(message), 0) < 0) {
-        std::cerr << "Send Message Fail, Socket : " << client << std::endl;
-      }
-    }
   }
 }
 
@@ -115,7 +127,7 @@ int main()
   MessageQueue mq;
   std::thread processor(process_messages, std::ref(mq)); // 객체 복사본이 아닌 참조 형태로 제공
 
-  std::thread t(run_multicast);
+  // std::thread t(run_multicast);
 
   while (true)
   {
