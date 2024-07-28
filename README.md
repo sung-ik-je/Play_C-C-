@@ -1,4 +1,4 @@
-# C_Cpp_py
+# c_cc_py
 repository 목표는 C/C++ 관련
 <br><br>
 ## 주제
