@@ -68,6 +68,10 @@ int main() {
     PEM_write_RSAPrivateKey(priv_file, rsa, nullptr, nullptr, 0, nullptr, nullptr);
     fclose(priv_file);
 
+    FILE *pub_file = fopen("public_key.pem", "wb");
+    PEM_write_RSAPublicKey(pub_file, rsa);
+    fclose(pub_file);
+
     // Generate and save certificate
     generate_certificate(rsa);
 
