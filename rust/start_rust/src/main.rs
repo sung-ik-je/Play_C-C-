@@ -1,4 +1,5 @@
-fn main() {
+
+fn format_traits() {
   println!("Hello, world!");
 
   format!("stdout string");
@@ -6,7 +7,7 @@ fn main() {
   let name = "ik";
   let age = 30;
   
-  let stdout = format!("name : {} year : {}", name, age);
+  let stdout = format!("name : {} year : {}", name, age); // {} : 기본 출력, display trait
 
   println!("{}", stdout);
   print!("same as format!, printed to the console");
@@ -19,15 +20,30 @@ fn main() {
              object="the lazy dog",
              subject="the quick brown fox",
              verb="jumps over");
+  
+  #[derive(Debug)]
+  struct Person {
+    name: String,
+    age: u32,
+  }
 
-  // "{:format_spec}", rust에서 중괄호 내 :는 형식 지정자를 정의하는데 사용된다
+  let person = Person {
+    name: "Bob".to_string(),
+    age: 25,
+  };
+  println!("{:?}", person); // {:?} : debug trait
+  println!("{:#?}", person); // {:?}와 유사하지만 들여쓰기를 포함해 출력
+
+  // {:.precision}:, rust에서 중괄호 내 :는 형식 지정자를 정의하는데 사용된다
   println!("Base 10:               {}",   69420); // 69420
   println!("Base 2 (binary):       {:b}", 69420); // 10000111100101100
   println!("Base 8 (octal):        {:o}", 69420); // 207454
   println!("Base 16 (hexadecimal): {:x}", 69420); // 10f2c
 
+  // print시에 정렬, 패딩
   println!("{number:>5}", number=1);  // "    1"
   println!("{number:0>5}", number=1); // "00001", >(우측 정렬), 1을 어디로 정렬할지, 0을 채운다는 의미
+  println!("{number:05}", number=1);  // 위에 {:0>5}와 마찬가지로 우측 정렬 및 0으로 패딩
   println!("{number:0<5}", number=1); // "10000", <(좌측 정렬)
   println!("{number:0>width$}", number=1, width=5); // "00001", $은 매크로에서 변수의 값이 들어갈 자리임을 나타냄
 
@@ -40,4 +56,8 @@ fn main() {
   // dead_code allow 목적(경고 표시 안나게)
   #[allow(dead_code)] // disable `dead_code` which warn against unused module
   struct Structure(i32);
+}
+fn main() {
+
+  format_traits();
 }
