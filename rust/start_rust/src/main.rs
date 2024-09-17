@@ -116,16 +116,113 @@ fn primitive_types() {
     ..5 : first~4
     ..=5 : first~5
   */
-  for i in 0..ys.len() {  // ys.len > xs.len, so after i = 5 func cout too far
-    match xs.get(i) { // match func is the roll of Option type matching
-      // if i > xs's index range, return None
-      Some(xval) => println!("{}: {}", i, xval),
-      None => println!("Slow down! {} is too far!", i),
-    }
-  }
+  // for i in 0..ys.len() {  // ys.len > xs.len, so after i = 5 func cout too far
+  //   match xs.get(i) { // match func is the roll of Option type matching
+  //     // if i > xs's index range, return None
+  //     Some(xval) => println!("{}: {}", i, xval),
+  //     None => println!("Slow down! {} is too far!", i),
+  //   }
+  // }
+
+  let empty_array: [u32; 1] = [3];  //[type, arr length]
+  let comp_array: [u32; 1] = [1];
+  /*
+  assert_eq, 두 값을 비교하는 매크로, 다른 경우 패닉 발생 시킴
+  패닉(panic), Rust에서 프로그램 실행 중에 복구할 수 없는 오류가 발생했을 때, 프로그램을 강제로 중단시키는 메커니즘
+    panic!(""); 이용해 프로그래머가 명시적으로 발생 시킬 수도 있다
+  */
+  // assert_eq!(empty_array, comp_array); // 배열의 값들을 복사해서 비교하기에 배열 큰 경우 부하 큼
+  /*
+  output
+    assertion `left == right` failed
+    left: [3]
+    right: [1]
+  */
 
   let empty_array: [u32; 0] = [];
-  assert_eq!(&empty_array, &[]);
+  assert_eq!(&empty_array, &[]); // 주소 값이 아니라 참조를 비교, 배열의 복사 과정이 없기에 더 효율적
+}
+
+/*
+아래 Unit struct는 태깅, 마크 목적으로 의미 있는 구분과 메모리 절약을 목적으로 사용한다
+  데이터를 식별하고자 하는 목적으로 사용하며 필드를 담고 있지 않아 메모리를 사용하지 않는다
+*/
+struct Unit;
+
+struct Point {
+  x: f32,
+  y: f32,
+}
+
+/*
+enum 내부 구조체 형식 할당 가능
+*/
+enum WebEvent {
+  Click { x: i64, y: i64 },
+  KeyPress(char),
+  Paste(String),
+}
+
+enum Stage {
+  Beginner,
+  Advanced,
+}
+
+enum Role {
+  Student,
+  Teacher,
+}
+
+fn struct_enum() {
+  println!("=================================================");
+  println!("struct_fn");
+  println!("=================================================");
+  println!("=================================================");
+  let another_point: Point = Point { x: 5.2, y: 0.2 };
+
+  // Access the fields of the point
+  println!("point coordinates: ({}, {})", another_point.x, another_point.y);
+  
+  // Make a new point by using struct update syntax to use the fields of our
+  // other one
+  let bottom_right = Point { x: 5.2, ..another_point };
+  println!("point coordinates: ({}, {})", bottom_right.x, bottom_right.y);
+
+  let event = WebEvent::Click { x: 10, y: 20 };
+
+  /*
+  match는 switch-case문의 상위 호환
+    switch문과 다르게 
+      1. 패턴 매칭: 여러 패턴을 매칭하여 값에 따라 다르게 처리할 수 있습니다.
+      2. 구조 분해: 구조체나 튜플을 패턴으로 분해하여 쉽게 접근할 수 있습니다.
+      3. 범위 패턴: 값의 범위에 따라 분기할 수 있습니다.
+      4. 가드 조건: 패턴에 추가적인 조건을 붙일 수 있습니
+  */
+  match event {
+      WebEvent::Click { x, y } => println!("Clicked at x={}, y={}", x, y),
+      WebEvent::KeyPress(c) => println!("Key pressed: '{}'", c),
+      WebEvent::Paste(s) => println!("Pasted text: '{}'", s),
+      _ => println!("default case"),  // Default case
+  }
+
+  // define enum's value to use enum value directly
+  use crate::Stage::{Beginner, Advanced};
+  use crate::Role::*;
+
+  let stage = Beginner;
+  let role = Student;
+
+  match stage {
+    // Note the lack of scoping because of the explicit `use` above.
+    Beginner => println!("Beginners are starting their learning journey!"),
+    Advanced => println!("Advanced learners are mastering their subjects..."),
+  } 
+
+  match role {
+    // Note again the lack of scoping.
+    Student => println!("Students are acquiring knowledge!"),
+    Teacher => println!("Teachers are spreading knowledge!"),
+  }
 }
 
 fn main() {
@@ -133,4 +230,6 @@ fn main() {
   format_traits();
 
   primitive_types();
+
+  struct_enum();
 }
