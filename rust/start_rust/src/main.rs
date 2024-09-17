@@ -1,5 +1,24 @@
 use std::mem;
 
+/* in rust "const" keyword same as cpp "const" */
+const THRESHOLD: i32 = 10;
+
+/* MY_STATIC var can be used same source code */
+static MY_STATIC: i32 = 42;  // 파일 내에서만 사용 가능
+
+/* PUB_STATIC var can be used other source code & module */
+pub static PUB_STATIC: i32 = 42;  // 다른 모듈에서도 접근 가능
+
+/* 
+mutable var 
+if modify mutable var, you must use unsafe keyword
+unsafe {
+  MY_MUTABLE_STATIC += 1;
+  println!("{}", MY_MUTABLE_STATIC);
+}
+*/
+static mut MY_MUTABLE_STATIC: i32 = 0;
+
 fn format_traits() {
   println!("=================================================");
   println!("format_traits");
