@@ -175,7 +175,7 @@ enum Role {
 
 fn struct_enum() {
   println!("=================================================");
-  println!("struct_fn");
+  println!("struct_enum");
   println!("=================================================");
   println!("=================================================");
   let another_point: Point = Point { x: 5.2, y: 0.2 };
@@ -225,6 +225,67 @@ fn struct_enum() {
   }
 }
 
+/*
+In Rust, enum acts more than a constant(like tagging)
+use impl keyword to define fn, so we could use object oriented-programming
+*/
+
+use crate::List::*;
+
+// choose Cons or Nil
+enum List {
+  Cons(u32, Box<List>),
+  Nil,
+}
+
+impl List {
+  fn new() -> List {
+    Nil
+  }
+
+  fn prepend(self, elem: u32) -> List {
+    Cons(elem, Box::new(self))
+  }
+
+  /*
+  &self : not copy but ref current object
+  _ : ignore value
+  ref tail : ref data, so in code ref tail is means list-object's second value(=box pointer)
+  */
+  fn len(&self) -> u32 {
+    match *self {
+      Cons(_, ref tail) => 1 + tail.len(),
+      Nil => 0
+    }
+  }
+
+  fn stringify(&self) -> String {
+    match *self {
+      Cons(head, ref tail) => {
+        format!("{}, {}", head, tail.stringify())
+      },
+      Nil => {
+        format!("Nil")
+      },
+    }
+  }
+}
+
+fn enum_detail() {
+  println!("=================================================");
+  println!("enum_detail");
+  println!("=================================================");
+  println!("=================================================");
+  let mut list = List::new();
+  
+  list = list.prepend(1);
+  list = list.prepend(2);
+  list = list.prepend(3);
+
+  println!("linked list has length: {}", list.len());
+  println!("{}", list.stringify());
+}
+
 fn main() {
 
   format_traits();
@@ -232,4 +293,6 @@ fn main() {
   primitive_types();
 
   struct_enum();
+
+  enum_detail();
 }
