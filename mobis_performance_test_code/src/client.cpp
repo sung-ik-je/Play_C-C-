@@ -38,8 +38,7 @@ int main() {
     try {
         boost::asio::io_context io_context;
 
-        // 클라이언트를 127.0.0.1(로컬 호스트)와 12345 포트로 설정
-        UdpClient client(io_context, "127.0.0.1", 12345);
+        UdpClient client(io_context, "192.168.0.7", 12345);
 
         client.sendProcess();
 

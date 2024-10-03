@@ -22,12 +22,12 @@ endif()
 
 # 서버 소스 파일
 add_executable(server
-    server.cpp  # 서버 소스 파일
+    src/server.cpp  # 서버 소스 파일
 )
 
 # 클라이언트 소스 파일
 add_executable(client
-    client.cpp  # 클라이언트 소스 파일
+  src/client.cpp  # 클라이언트 소스 파일
 )
 
 # Boost 라이브러리와 링크
