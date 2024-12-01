@@ -1,0 +1,16 @@
+[package]
+name = "someip_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+
+[[bin]]
+name = "loop-bin"
+path = "src/bin/loop_bin.rs"
+
+
+[[bin]]
+name = "api-bin"
+path = "src/bin/api_bin.rs"
