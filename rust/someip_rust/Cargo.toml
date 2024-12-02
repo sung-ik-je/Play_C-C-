@@ -12,5 +12,5 @@ path = "src/bin/loop_bin.rs"
 
 
 [[bin]]
-name = "api-bin"
-path = "src/bin/api_bin.rs"
+name = "work-bin"
+path = "src/bin/work_bin.rs"

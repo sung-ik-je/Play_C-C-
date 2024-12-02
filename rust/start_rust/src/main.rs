@@ -10,8 +10,8 @@ static MY_STATIC: i32 = 42;  // 파일 내에서만 사용 가능
 pub static PUB_STATIC: i32 = 42;  // 다른 모듈에서도 접근 가능
 
 /* 
-mutable var 
-if modify mutable var, you must use unsafe keyword
+in rust var's default type is immutable, so if modify var, you must use unsafe keyword
+rust에서는 메모리 안전성 관련해 매우 엄격하지만 이를 회피하는 키워드가 unsafe
 unsafe {
   MY_MUTABLE_STATIC += 1;
   println!("{}", MY_MUTABLE_STATIC);
@@ -28,7 +28,14 @@ fn format_traits() {
 
   format!("stdout string");
   
+  /*
+  기본적으로 let 키워드만으로 선언한 변수는 불변, 수정 위해서는 mut 키워드 사용해야한다 
+  Shadowing(섀도잉) 이용해 재선언 가능
+    let mut 형태로 선언한 변수와의 차이점은 같은 변수를 수정하는 것과 새로운 변수로 재선언하는 것
+  */ 
+  // let mut name = "ik"
   let name = "ik";
+  // let name = "je";
   let age = 30;
   
   let stdout = format!("name : {} year : {}", name, age); // {} : 기본 출력, display trait

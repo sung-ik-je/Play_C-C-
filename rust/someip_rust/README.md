@@ -28,7 +28,7 @@
 
 # Directory
 project/src/main.rs : SOME/IP DTC 메인 바이너리 소스 코드<br>
-project/src/bin/api_bin.rs : api call 작업 관련 바이너리 소스 코드<br>
+project/src/bin/work_bin.rs : 특정 작업 수행하는 바이너리 소스 코드<br>
 project/src/bin/loop_bin.rs : 무한 루프 목적 바이너리 소스 코드<br>
 
 **참고** src/bin 경로가 의무는 아니며 Cargo.toml file에 bin 경로를 명시해주면 된다.
@@ -39,8 +39,8 @@ path = "src/bin/loop_bin.rs"
 
 
 [[bin]]
-name = "api-bin"
-path = "src/bin/api_bin.rs"
+name = "work-bin"
+path = "src/bin/work_bin.rs"
 ```
 
 ## 복수 개의 bin 생성 시 참고
