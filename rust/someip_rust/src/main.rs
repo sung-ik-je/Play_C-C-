@@ -10,10 +10,10 @@ fn send_event(stream: &mut TcpStream) {
 
 fn main() {
     let mut stream: TcpStream = TcpStream::connect("127.0.0.1:7878").expect("Failed to connect to server");
-
-    let mut input: String = String::new(); // 사용자 입력을 저장할 변수
-
+    
     loop {
+      let mut input: String = String::new(); // 사용자 입력을 저장할 변수
+
       println!("Enter something: ");
 
       io::stdin()
