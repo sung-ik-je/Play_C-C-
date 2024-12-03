@@ -4,14 +4,14 @@ use std::io;
 
 
 fn send_event(stream: &mut TcpStream) {
-  let command = "exit";
+  let command: &str = "exit";
   stream.write(command.as_bytes()).expect("Failed to send command");
 }
 
 fn main() {
-    let mut stream = TcpStream::connect("127.0.0.1:7878").expect("Failed to connect to server");
+    let mut stream: TcpStream = TcpStream::connect("127.0.0.1:7878").expect("Failed to connect to server");
 
-    let mut input = String::new(); // 사용자 입력을 저장할 변수
+    let mut input: String = String::new(); // 사용자 입력을 저장할 변수
 
     loop {
       println!("Enter something: ");
