@@ -5,6 +5,29 @@ use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+
+/*
+  spawn
+    새로운 스레드를 생성하는 함수
+    스레드에서 실행될 클로저(함수)를 인자로 받는다.
+    소유권의 이전이 관건이다.
+
+  move ||
+    클로저 내부로 값을 이동시키는 역할
+    move 키워드는 클로저 내부에서 외부 변수를 사용하는 방법을 정의하며 이 키워드를 사용하면 클로저가 외부 변수를 소유하게 된다.
+      이는 더 이상 main에서 run_thread_clone을 사용하지 못한다는 의미
+      만약 move를 사용하지 않으면 run_thread_clone에 대해 _handle 스레드 또한 참조할 수 있지만 소유권은 main func에 있다.
+    move 선언 이후 사용되는 클로저 내부에서 사용되는 변수들에 대해서만 소유권을 이동시키며 다른 변수들은 영향을 받지 않는다.
+*/
+fn other_thread(run_thread: Arc<AtomicBool>) {
+  let mut i = 0;
+    while run_thread.load(Ordering::SeqCst) {
+        println!("other thread: {}", i);
+        i += 1;
+        thread::sleep(Duration::from_millis(500)); // 0.5초 대기
+    }
+}
+
 fn main() {
   /*
   Atomic Reference Counted, 멀티 스레드 환경에서 안전한 참조 카운팅 제공하는 스마트 포인터
@@ -22,28 +45,7 @@ fn main() {
   let run_thread = Arc::new(AtomicBool::new(true));
   let run_thread_clone = Arc::clone(&run_thread);
 
-  
-  /*
-  spawn
-    새로운 스레드를 생성하는 함수
-    스레드에서 실행될 클로저(함수)를 인자로 받는다.
-    소유권의 이전이 관건이다.
-
-  move ||
-    클로저 내부로 값을 이동시키는 역할
-    move 키워드는 클로저 내부에서 외부 변수를 사용하는 방법을 정의하며 이 키워드를 사용하면 클로저가 외부 변수를 소유하게 된다.
-      이는 더 이상 main에서 run_thread_clone을 사용하지 못한다는 의미
-      만약 move를 사용하지 않으면 run_thread_clone에 대해 _handle 스레드 또한 참조할 수 있지만 소유권은 main func에 있다.
-    move 선언 이후 사용되는 클로저 내부에서 사용되는 변수들에 대해서만 소유권을 이동시키며 다른 변수들은 영향을 받지 않는다.
-   */
-  let _handle = thread::spawn(move || {
-    let mut i = 0;
-    while run_thread_clone.load(Ordering::SeqCst) {
-      println!("other thread: {}", i);
-      i += 1;
-      thread::sleep(Duration::from_millis(500)); // 0.5초 대기
-    }
-  });
+  let _handle = thread::spawn(move || other_thread(run_thread_clone));
 
   let listener = TcpListener::bind("127.0.0.1:7878").expect("Failed to bind");
 
