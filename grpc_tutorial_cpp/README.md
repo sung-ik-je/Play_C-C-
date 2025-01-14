@@ -25,5 +25,5 @@ stub을 이용해 함수를 호출할 때 메타데이터, 요청문, 응답 받
 
 
 # proto 파일 컴파일 명령어
-protoc -I=. --grpc_out=. --plugin=protoc-gen-grpc=$(which grpc_cpp_plugin) test.proto
+protoc -I=. --grpc_out=. --plugin=protoc-gen-grpc=$(which grpc_cpp_plugin) test.proto<br>
 protoc -I=. --cpp_out=. test.proto
