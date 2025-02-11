@@ -9,21 +9,28 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 func send_file(fileType string) {
 	// func send_file(id int, fileType string) {
 	var filePath, url string
+	// 멀티파트 폼 데이터 생성
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
 
+	url = "http://localhost:8080/request"
 	// 파일 타입별 경로 및 서버 URL 설정
 	switch fileType {
 	case "text":
 		// filePath = fmt.Sprintf("text_file/example.txt", id)
-		filePath = "text_file/example.txt"
-		url = "http://localhost:8080/analyze-text-file"
+		filePath = "file/example.txt"
+		writer.WriteField("description", "This is a test file")
+		writer.WriteField("File-Type", "Text")
 	case "image":
-		filePath = "text_file/example.png"
-		url = "http://localhost:8080/analyze-image-file"
+		filePath = "file/Tk0IajNeOfOdEUWDV-tTZn4tOPT0kRPtme8PAiL6fm7NQ_YV7CKYEWlNDJJ9D_om7rzbkqgpe9lBhyKojZ8lxEkJX-chNzEiuKhnprlUQ61-ZkWqpx8w_5gmKLdYaSJ6rD93RuJGnqIkiXRPchCwJQ.webp"
+		writer.WriteField("description", "This is a image file")
+		writer.WriteField("File-Type", "Image")
 	default:
 		fmt.Println("지원되지 않는 파일 타입:", fileType)
 		return
@@ -37,10 +44,6 @@ func send_file(fileType string) {
 	}
 	defer file.Close()
 
-	// 멀티파트 폼 데이터 생성
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
 	// 파일 첨부
 	part, err := writer.CreateFormFile("file", filePath)
 	if err != nil {
@@ -50,7 +53,7 @@ func send_file(fileType string) {
 	io.Copy(part, file)
 
 	// 추가 필드 작성
-	writer.WriteField("description", "This is a test file")
+
 	writer.Close()
 
 	// HTTP 요청 생성
@@ -91,7 +94,7 @@ func send_file_url() {
 			return
 		}
 
-		url := "http://localhost:8080/file-download"
+		url := "http://localhost:8080/request"
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 		if err != nil {
 			fmt.Println("요청 생성 실패:", err)
@@ -120,8 +123,13 @@ func send_image_file() {
 
 func main() {
 
-	send_file()
+	for {
+		send_file("text")
+		// send_file("image")
+		// send_file_url()
+		time.Sleep(2 * time.Second)
+	}
 
-	send_file_url()
+	// send_file_url()
 
 }
