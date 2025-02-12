@@ -3,8 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -12,6 +17,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/chai2010/webp"
+	"golang.org/x/image/draw"
 )
 
 var reauest_id int = 0
@@ -86,6 +94,13 @@ var wg sync.WaitGroup
 var jobQueue *JobQueue
 var numWorkers = 10
 
+// 현재는 이미지 파일 이름 해시를 통한 디렉토리 생성
+func hashFNV(s string) string {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return strconv.FormatUint(uint64(h.Sum32()), 10)
+}
+
 func NewJobQueue(bufferSize int) *JobQueue {
 	return &JobQueue{
 		queue: make(chan Job, bufferSize),
@@ -152,11 +167,65 @@ func parsing_file_metadata(r *http.Request, j interface{}) int {
 	return 0
 }
 
-/*
-복사 비용 줄이기 위해 포인터 사용
-포인터를 사용함으로써 nil return이 가능해진다
-jobData
-*/
+func resizeImage(file multipart.File, outputPath, ext string, newWidth, newHeight int) error {
+	fmt.Printf("Image Resizing : %dx%d\n", newWidth, newHeight)
+
+	// file pointer를 초기화해줘야 resizeImage func의 여러 호출을 이용할 수 있다
+	_, err := file.Seek(0, io.SeekStart)
+	if err != nil {
+		return fmt.Errorf("파일 포인터 초기화 실패: %v", err)
+	}
+
+	var img image.Image
+	switch ext {
+	case "jpg", "jpeg":
+		img, err = jpeg.Decode(file)
+		fmt.Println("Image Extention JPG, JPEG")
+	case "png":
+		img, err = png.Decode(file)
+		fmt.Println("Image Extention PNG")
+	case "webp":
+		img, err = webp.Decode(file)
+		fmt.Println("Image Extention WEBP")
+	default:
+		return fmt.Errorf("지원하지 않는 확장자: %s", ext)
+	}
+
+	if err != nil {
+		fmt.Println("이미지 리사이징 실패")
+		return fmt.Errorf("이미지 디코딩 실패: %v", err)
+	}
+
+	newImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+	draw.CatmullRom.Scale(newImg, newImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+	outputPath += "/Image_" + strconv.Itoa(newWidth) + "_" + strconv.Itoa(newHeight) + "." + ext
+	fmt.Println("outputPath : ", outputPath)
+	outFile, err := os.Create(outputPath)
+	if err != nil {
+		fmt.Println("출력 파일 생성 실패")
+		return fmt.Errorf("출력 파일 생성 실패: %v", err)
+	}
+	defer outFile.Close()
+
+	switch ext {
+	case "jpg", "jpeg":
+		err = jpeg.Encode(outFile, newImg, &jpeg.Options{Quality: 90})
+	case "png":
+		err = png.Encode(outFile, newImg)
+	case "webp":
+		err = webp.Encode(outFile, newImg, &webp.Options{Lossless: false, Quality: 90})
+	}
+
+	if err != nil {
+		fmt.Println("이미지 저장 실패")
+		return fmt.Errorf("이미지 저장 실패: %v", err)
+	}
+
+	fmt.Println("리사이징 완료:", outputPath)
+	return nil
+}
+
 func file_parser(r *http.Request, j interface{}) {
 	result := parsing_file_metadata(r, j)
 	if result == FAIL {
@@ -175,19 +244,17 @@ func file_parser(r *http.Request, j interface{}) {
 	}
 	defer file.Close()
 
-	savePath := filepath.Join("storage", header.Filename)
-	outFile, err := os.Create(savePath)
-	if err != nil {
-		// http.Error(w, "파일 저장 실패", http.StatusInternalServerError)
-		// return nil
+	file_name_h := hashFNV(header.Filename)
+	savePath := filepath.Join("storage", file_name_h)
+	if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
+		panic(err)
 	}
-	defer outFile.Close()
 
-	_, err = io.Copy(outFile, file)
-	if err != nil {
-		// http.Error(w, "파일 저장 중 오류 발생", http.StatusInternalServerError)
-		// return nil
-	}
+	file_extension := r.FormValue("File-Extenstion")
+
+	resizeImage(file, savePath, file_extension, 30, 30)
+	resizeImage(file, savePath, file_extension, 100, 100)
+	resizeImage(file, savePath, file_extension, 500, 500)
 }
 
 // 매개변수 j는 구조체 포인터 변수
@@ -234,7 +301,7 @@ func job_handler(r *http.Request, request_file_type string) {
 	jobQueue.Enqueue(job)
 
 	// fmt.Fprintf(w, "작업이 큐에 추가되었습니다: ID=%d, Message=%s", job.ID, job.Message)
-	fmt.Println("큐에 작업 추가됨:", job)
+	// fmt.Println("큐에 작업 추가됨:", job)
 }
 
 func create_worker() {

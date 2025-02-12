@@ -2,4 +2,5 @@
 **/target
 .DS_Store
 .vscode/*
-**/file_path
+**/file/*
+**/storage/*

@@ -31,6 +31,7 @@ func send_file(fileType string) {
 		filePath = "file/Tk0IajNeOfOdEUWDV-tTZn4tOPT0kRPtme8PAiL6fm7NQ_YV7CKYEWlNDJJ9D_om7rzbkqgpe9lBhyKojZ8lxEkJX-chNzEiuKhnprlUQ61-ZkWqpx8w_5gmKLdYaSJ6rD93RuJGnqIkiXRPchCwJQ.webp"
 		writer.WriteField("description", "This is a image file")
 		writer.WriteField("File-Type", "Image")
+		writer.WriteField("File-Extenstion", "webp")
 	default:
 		fmt.Println("지원되지 않는 파일 타입:", fileType)
 		return
@@ -124,8 +125,8 @@ func send_image_file() {
 func main() {
 
 	for {
-		send_file("text")
-		// send_file("image")
+		// send_file("text")
+		send_file("image")
 		// send_file_url()
 		time.Sleep(2 * time.Second)
 	}
